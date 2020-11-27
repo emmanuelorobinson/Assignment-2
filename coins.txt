@@ -1,0 +1,10 @@
+Emmanuel 50
+Samira 40
+Jeff 80
+Lisa 90
+Mary 95
+Jeff 100
+Sam 67
+Mark 10
+Simone 60
+Lizzy 50

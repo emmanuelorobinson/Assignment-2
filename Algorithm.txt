@@ -1,0 +1,196 @@
+DECLARE AND INITIALIZE const SIZE as 10
+
+STRUCT item
+    DECLARE name as CHAR[50]
+    DECLARE coinAmt as INTEGER
+    DECLARE fifties as INTEGER
+    DECLARE twenties as INTEGER
+    DECLARE tens as INTEGER
+    DECLARE fives as INTEGER
+END STRUCT
+CALL STRUCT item AS itemType
+
+BEGIN MODULE coinCount(userInput, coinValue)
+    DECLARE AND INITIALIZE int coinCounter TO 0
+
+    WHILE userInput IS GREATER THAN coinvalue
+        userInput IS EQUAL SUBTRACTED BY coinValue
+        coinCounter IS INCREASED BY 1
+    ENDWHILE
+
+    RETURN coinCounter
+END MODULE coinCount
+
+BEGIN MODULE coinSubtract(userInput, coinValue)
+    DECLARE AND INITIALIZE int coinCounter TO 0
+
+    WHILE userInput IS GREATER THAN coinvalue
+        userInput IS EQUAL SUBTRACTED BY coinValue
+        coinCounter IS INCREASED BY 1
+    ENDWHILE
+
+    RETURN userInput
+END MODULE coinCount
+
+BEGIN MODULE nullCheck(FILE *userFile)
+    IF userFile IS EQUALS TO NULL THEN
+        PRINT "File opening failed"
+        RETURN -1
+    ELSE
+        PRINT "File opening successful"
+        RETURN 0;
+    ENDIF
+END MODULE nullCheck
+
+BEGIN MODULE FILE* readFile(char *x[])
+    DECLARE FILE *userFile
+    INITIALIZE userFile TO OPEN A READ IN FILE FROM ARGUMENT 1
+    RETURN userFile
+END MODULE readFile
+
+BEGIN MODULE FILE* writeFile(char *x[])
+    DECLARE FILE *userFile
+    INITIALIZE userFile TO OPEN A WRITE IN FILE TO ARGUMENT 2
+    RETURN userFile
+END MODULE readFile
+
+BEGIN MODULE void arrayBin(itemType bins[SIZE], int *numBins, FILE *userFile)
+    DECLARE line[SIZE]
+    DECLARE AND INITIALIZE int coinAmt, count, countOne, AND countTwo TO 0
+
+    WHILE SCAN FROM THE userFile IS NOT EQUALS TO END OF FILE
+        FOR int i EQUALS TO 0, i IS LESS THAN THE LENGTH OF line, INCREASE i BY 1
+            IF line[i] IS GREATER OR EQUALS TO 65 AND LESS THAN OR EQUALS TO 90
+                line[i] IS EQUALS TO line[i]+32
+            ENDIF
+        ENDFOR
+
+        COPY STRING FROM line INTO bins[count].name
+        SET bins[count].coinAmt TO EQUALS coinAmt
+        INCREASE count BY 1
+    ENDWHILE
+
+    FOR int i EQUALS TO 0, AND i IS LESS THAN SIZE, INCREASE i BY 1
+        FOR int j IS EQUALS TO int i PLUS 1, AND j IS LESS THAN SIZE, INCREASE j BY 1
+            DECLARE AND INITIALIZE res AS RESULT OF bins[i].name COMPARED TO bins[j].name
+
+            IF VALUE OF res IS THE SAME AS 0 THEN
+                bins[i].coinAmt IS EQUALS TO ITSELF PLUS bins[j].coinAmt
+                countTwo IS EQUALS TO j + 1
+                BREAK IF STATEMENT
+            ENDIF
+        ENDFOR
+        countTwo IS INCREASED BY 1
+    ENDFOR
+
+    IF countTwo IS LESS THAN 0 OR GREATER THAN SIZE THEN
+        PRINT "Invalid Position"
+    ELSE
+        FOR int i IS EQUAS TO countTwo - 1, AND i IS LESS THAN SIZE, THEN INCREASE i BY 1
+            COPY THE STRING FROM bins[i + 1].name INTO bins[i].name
+            bins[i].coinAmt IS EQUALS TO bins[i + 1].name
+        ENDFOR
+    ENDIF
+
+    *numBins = count - 1
+END MODULE arrayBin
+
+BEGIN MODULE void writeRecord(itemType bins[], FILE *userFile, int x)
+    DECLARE ANN INITIALIZE int count AS 0
+    FOR int i IS EQUALS TO 0 AND i IS LESS THAN x THEN INCREASE i BY 1
+        PRINT THE CONTENTS OF bins[count].name, bins[count].coinAmt, bins[count].fifties, bins[count].twenties, bins[count].tens, bins[count].fives SEPARATED BY COMMAS IN A LINE
+        INCREASE COUNT BY 1
+    ENDFOR
+END MODULE writeRecord
+
+BEGIN MODULE getString(char userInput[])
+    userInput[SIZE]
+    PRINT "Pleae enter a name: "
+    userInput IS EQUALS TO USER INPUT
+
+    FOR int i EQUALS TO 0, i IS LESS THAN THE LENGTH OF userInput, INCREASE i BY 1
+        IF userInput[i] IS GREATER OR EQUALS TO 65 AND LESS THAN OR EQUALS TO 90
+            userInput[i] IS EQUALS TO userInput[i]+32
+        ENDIF
+    ENDFOR
+END MODULE getString
+
+BEGIN MODULE arraySearch(itemType bins[], char userInput[], int x)
+    DELCARE char line[SIZE] AND int res
+
+    FOR int i EQUALS TO 0, AND i IS LESS THAN x, INCREASE i BY 1
+        res IS EQUALS TO THE RETURNED VALUE OF userInput COMPARED WITH bin[i].name
+
+        IF res IS THE SAME AS 0
+            PRINT "Customer: "
+            PRINT "bins[i].name bins[i].coinAmt cents"
+
+            PRINT "bins[i].fifties coin(s) x 50 cents"
+            PRINT "bins[i].twenties coin(s) x 20 cents"
+            PRINT "bins[i].tens coin(s) x 10 cents"  
+            PRINT "bins[i].fives coin(s) x 5 cents"   
+            BREAK IF STATEMENT
+        ENDIF
+    IF res IS NOT EQUALS TO 0
+        PRINT "Name not found"
+        RETURN -1;
+    ENDIF
+END MODULE arraySearch
+
+BEGIN MODULE coinAdder(itemType bins[])
+    DECLARE AND INITIALIZE int coinRemainder TO 0
+    DELCARE int x
+
+    FOR int i EQUALS TO 0, AND i IS LESS THAN SIZE, INCREASE i BY 1
+        x is EQUALS TO bins[i].coinAmt
+        bins[i].fifties IS EQUALS TO CALL coinCount(x, 50)
+        coinRemainder IS EQUALS TO CALL coinSubtract(x, 50)
+        bins[i].twenties IS EQUALS TO CALL coinCount(coinRemainder, 20)
+        coinRemainder IS EQUALS TO CALL coinSubtract(coinRemainder, 20)
+        bins[i].tens IS EQUALS TO CALL coinCount(coinRemainder, 10)
+        coinRemainder IS EQUALS TO CALL coinSubtract(coinRemainder, 10)
+        bins[i].fives IS EQUALS TO CALL coinCount(coinRemainder, 5)
+    ENDFOR
+END MODULE coinAdder
+
+BEGIN MODULE int main(int argc, char*argv[])
+    DECLARE FILE *srcFile, FILE *dstFile, itemType bins[SIZE], char userString[50], int recordSIZE, int x, int numPick
+
+    IF argc IS THE SAME AS 1 THEN
+        PRINT "No commmand line arguments given!"
+    ELSE
+        srcFile =readFile(argv)
+        dstFile = writeFile(argv)
+
+        IF nullCheck(dstFile) IS THE SAME AS -1 OR nullCheck(srcFile) IS THE SAME AS -1 THEN
+            EXIT PROGRAM
+        END IF
+
+        CALL arrayBin(bin, &recordSIZE, srcFile)
+        CALL coinAdder(bins)
+        CALL writeRecord(bins, dstFile, recordSIZE)
+        CLOSE srcFile
+
+        PRINT "1. Enter a name: "
+        PRINT "2. Exit:"
+        PRINT "Pick option 1 or 2"
+        numPick IS EQUAL TO GET INPUT
+
+        DO
+            IF numPick IS THE SAME AS 1 THEN
+                CALL getString(userString)
+                CALL arraySearch(bins, userString, recordSIZE)
+                
+                PRINT "Press 1 to continue or 2 to quit: "
+                numPick IS EQUALS TO GET INPUT
+            ENDIF
+
+            IF numPick IS NOT EQUALS TO 1 AND NOT EQUALS TO 2
+                PRINT "Please try again: "
+                numPick IS EQUALS TO GET INPUT
+            ENDIF
+        WHILE numPick IS NOT EQUALS TO 2
+        ENDDOWHILE
+    ENDIF
+END MODULE main
+
